@@ -6,7 +6,7 @@
     "node-red": "^3.0.0",
     "node-red-dashboard": "^3.6.6",
     "node-red-node-email": "^2.0.0",
-    "node-red-contrib-influxdb": "^0.6.0"
+    "node-red-node-sqlite": "^1.0.0"
   },
   "scripts": {
     "start": "node-red --settings ./settings.js flows.json"
