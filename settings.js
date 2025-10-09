@@ -3,7 +3,7 @@ module.exports = {
     type: "credentials",
     users: [{
       username: process.env.NODE_RED_USERNAME || "admin",
-      password: process.env.NODE_RED_PASSWORD || "$2b$08$SUA_SENHA_FORTE_AQUI"
+      password: process.env.NODE_RED_PASSWORD || "junior"
     }]
   },
   ui: { path: "ui" },
