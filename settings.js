@@ -1,11 +1,5 @@
 module.exports = {
-  adminAuth: {
-    type: "credentials",
-    users: [{
-      username: process.env.NODE_RED_USERNAME || "admin",
-      password: process.env.NODE_RED_PASSWORD || "junior"
-    }]
-  },
+  adminAuth: false,  // ← DESATIVA login
   ui: { path: "ui" },
   logging: { console: { level: "info" } }
 };
