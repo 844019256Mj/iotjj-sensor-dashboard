@@ -26,7 +26,7 @@
       [
         "6db50ad59e19bb8d",
         "0b0ba478bac76afc",
-        "salvar-influx-temp"
+        "salvar-sqlite-temp"
       ]
     ]
   },
@@ -49,59 +49,94 @@
       [
         "bd81c3bc1ab9bea8",
         "6b33249370908bd3",
-        "salvar-influx-hum"
+        "salvar-sqlite-hum"
       ]
     ]
   },
   {
-    "id": "salvar-influx-temp",
+    "id": "salvar-sqlite-temp",
     "type": "function",
     "z": "f074a6e9a2370e56",
-    "name": "Preparar Dados Temp",
-    "func": "msg.payload = {\n    measurement: \"sensor_data\",\n    tags: {\n        sensor: \"dht11\",\n        type: \"temperature\"\n    },\n    fields: {\n        value: parseFloat(msg.payload)\n    }\n};\nreturn msg;",
+    "name": "Salvar Temp SQLite",
+    "func": "// Preparar dados para SQLite\nmsg.topic = \"INSERT INTO sensor_data (type, value) VALUES ('temperature', \" + parseFloat(msg.payload) + \")\";\nreturn msg;",
     "outputs": 1,
     "x": 400,
     "y": 100,
     "wires": [
-      ["influxdb-write"]
+      ["sqlite-db"]
     ]
   },
   {
-    "id": "salvar-influx-hum",
+    "id": "salvar-sqlite-hum",
     "type": "function",
     "z": "f074a6e9a2370e56",
-    "name": "Preparar Dados Hum",
-    "func": "msg.payload = {\n    measurement: \"sensor_data\",\n    tags: {\n        sensor: \"dht11\", \n        type: \"humidity\"\n    },\n    fields: {\n        value: parseFloat(msg.payload)\n    }\n};\nreturn msg;",
+    "name": "Salvar Hum SQLite",
+    "func": "// Preparar dados para SQLite\nmsg.topic = \"INSERT INTO sensor_data (type, value) VALUES ('humidity', \" + parseFloat(msg.payload) + \")\";\nreturn msg;",
     "outputs": 1,
     "x": 400,
     "y": 220,
     "wires": [
-      ["influxdb-write"]
+      ["sqlite-db"]
     ]
   },
   {
-    "id": "influxdb-write",
-    "type": "influxdb out",
+    "id": "sqlite-db",
+    "type": "sqlite",
     "z": "f074a6e9a2370e56",
-    "influxdb": "influx-config",
-    "measurement": "{{measurement}}",
-    "precision": "ms",
-    "name": "Salvar no InfluxDB",
-    "x": 650,
+    "mydb": "sensor-db",
+    "sqlquery": "topic",
+    "name": "Banco de Dados Sensor",
+    "x": 600,
     "y": 160,
-    "wires": []
+    "wires": [
+      []
+    ]
   },
   {
-    "id": "influx-config",
-    "type": "influxdb",
-    "name": "InfluxDB Cloud",
-    "hostname": "us-east-1-1.aws.cloud2.influxdata.com",
-    "port": "443",
-    "protocol": "https",
-    "token": "pAKyM8eTjhfbfw9m9r2YGqhlS1WLthTbj64IxUSGyI5ns2SFhtUmTq_gUlu0hNh-LBlxqABMJpVnhvLA24Vzww==",
-    "organization": "ae2a79b98a03d48b",
-    "bucket": "jjsensor-data",
-    "precision": "ms"
+    "id": "criar-tabela",
+    "type": "inject",
+    "z": "f074a6e9a2370e56",
+    "name": "Criar Tabela",
+    "props": [
+      {
+        "p": "topic",
+        "v": "CREATE TABLE IF NOT EXISTS sensor_data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, value REAL)",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "1",
+    "topic": "",
+    "x": 400,
+    "y": 40,
+    "wires": [
+      ["sqlite-db"]
+    ]
+  },
+  {
+    "id": "consultar-dados",
+    "type": "inject",
+    "z": "f074a6e9a2370e56",
+    "name": "Ver Histórico",
+    "props": [
+      {
+        "p": "topic",
+        "v": "SELECT * FROM sensor_data ORDER BY timestamp DESC LIMIT 10",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 400,
+    "y": 320,
+    "wires": [
+      ["sqlite-db"]
+    ]
   },
   {
     "id": "alerta-temperatura",
@@ -290,5 +325,11 @@
     "icon": "fa-sun",
     "disabled": false,
     "hidden": false
+  },
+  {
+    "id": "sensor-db",
+    "type": "sqlitedb",
+    "z": "",
+    "db": "sensor_data.db"
   }
 ]
