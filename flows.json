@@ -201,35 +201,6 @@
         ]
     },
     {
-        "id": "ab072a6e2e95b36a",
-        "type": "inject",
-        "z": "f074a6e9a2370e56",
-        "name": "Atualizar Clima",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "600",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "update",
-        "payload": "true",
-        "payloadType": "bool",
-        "x": 100,
-        "y": 400,
-        "wires": [
-            [
-                "19956c3e6b37e656"
-            ]
-        ]
-    },
-    {
         "id": "19956c3e6b37e656",
         "type": "http request",
         "z": "f074a6e9a2370e56",
@@ -353,6 +324,35 @@
         "wires": []
     },
     {
+        "id": "fb501ce6bdb2112e",
+        "type": "inject",
+        "z": "f074a6e9a2370e56",
+        "name": "Atualizar Clima",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "600",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 3,
+        "topic": "update",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 120,
+        "y": 400,
+        "wires": [
+            [
+                "19956c3e6b37e656"
+            ]
+        ]
+    },
+    {
         "id": "a7603f8e8449f783",
         "type": "mqtt-broker",
         "name": "TH",
@@ -414,7 +414,7 @@
         "hidden": false
     },
     {
-        "id": "73bcea59c388f6cc",
+        "id": "2b5e0701db1b18a2",
         "type": "global-config",
         "env": [],
         "modules": {
