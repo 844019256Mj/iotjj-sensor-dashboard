@@ -201,6 +201,158 @@
         ]
     },
     {
+        "id": "ab072a6e2e95b36a",
+        "type": "inject",
+        "z": "f074a6e9a2370e56",
+        "name": "Atualizar Clima",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "600",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "update",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 100,
+        "y": 400,
+        "wires": [
+            [
+                "19956c3e6b37e656"
+            ]
+        ]
+    },
+    {
+        "id": "19956c3e6b37e656",
+        "type": "http request",
+        "z": "f074a6e9a2370e56",
+        "name": "OpenWeatherMap API",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.openweathermap.org/data/2.5/weather?q=Maputo&appid=592e7c0c8d0dc6bd26a6d77ea013086a&units=metric&lang=pt",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 320,
+        "y": 400,
+        "wires": [
+            [
+                "7d0bf45ba1395325"
+            ]
+        ]
+    },
+    {
+        "id": "7d0bf45ba1395325",
+        "type": "function",
+        "z": "f074a6e9a2370e56",
+        "name": "Processar Clima OWM",
+        "func": "// Processar Dados OpenWeatherMap - Versão Simplificada\nif (msg.payload && msg.payload.main && msg.payload.wind) {\n    \n    // Output 1: Pressão (para gauge de pressão)\n    var msg1 = {\n        payload: msg.payload.main.pressure,\n        topic: \"pressao\"\n    };\n    \n    // Output 2: Vento Velocidade (para gauge de vento)  \n    var msg2 = {\n        payload: msg.payload.wind.speed,\n        topic: \"vento_velocidade\"\n    };\n    \n    // Output 3: Descrição (para texto UI)\n    var descricao = msg.payload.weather[0].description || \"N/A\";\n    var msg3 = {\n        payload: `Pressão: ${msg.payload.main.pressure} hPa | Vento: ${msg.payload.wind.speed} m/s | ${descricao}`,\n        topic: \"descricao_clima\"\n    };\n    \n    return [msg1, msg2, msg3];\n}\n\nnode.error(\"Dados inválidos da API\");\nreturn [null, null, null];",
+        "outputs": 3,
+        "timeout": 0,
+        "x": 540,
+        "y": 400,
+        "wires": [
+            [
+                "33ae54737b4557fe"
+            ],
+            [
+                "6dc4cfeabdb8566d"
+            ],
+            [
+                "6908b76efe5d8cc3"
+            ]
+        ]
+    },
+    {
+        "id": "33ae54737b4557fe",
+        "type": "ui_gauge",
+        "z": "f074a6e9a2370e56",
+        "name": "Pressão Externa",
+        "group": "grupo-clima-externo",
+        "order": 1,
+        "width": 3,
+        "height": 2,
+        "gtype": "gage",
+        "title": "📊 Pressão Atmosférica",
+        "label": "hPa",
+        "format": "{{value}}",
+        "min": 900,
+        "max": 1100,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#2ca02c"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 770,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "6dc4cfeabdb8566d",
+        "type": "ui_gauge",
+        "z": "f074a6e9a2370e56",
+        "name": "Velocidade do Vento",
+        "group": "grupo-clima-externo",
+        "order": 2,
+        "width": 3,
+        "height": 2,
+        "gtype": "gage",
+        "title": "💨 Velocidade do Vento",
+        "label": "m/s",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 20,
+        "colors": [
+            "#d62728",
+            "#ff9896",
+            "#9467bd"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 780,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "6908b76efe5d8cc3",
+        "type": "ui_text",
+        "z": "f074a6e9a2370e56",
+        "group": "grupo-clima-externo",
+        "order": 3,
+        "width": 6,
+        "height": 1,
+        "name": "Condições Atuais",
+        "label": "🌤️ Condições em Maputo",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 770,
+        "y": 440,
+        "wires": []
+    },
+    {
         "id": "a7603f8e8449f783",
         "type": "mqtt-broker",
         "name": "TH",
@@ -243,6 +395,17 @@
         "className": ""
     },
     {
+        "id": "grupo-clima-externo",
+        "type": "ui_group",
+        "name": "Dados Meteorológicos Externos",
+        "tab": "d8fef3a0d83053ee",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
         "id": "d8fef3a0d83053ee",
         "type": "ui_tab",
         "name": "DHT11",
@@ -251,7 +414,7 @@
         "hidden": false
     },
     {
-        "id": "4433af80aa57ab63",
+        "id": "9fee523d5028d854",
         "type": "global-config",
         "env": [],
         "modules": {
