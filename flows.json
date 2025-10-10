@@ -1,335 +1,73 @@
 [
-  {
-    "id": "f074a6e9a2370e56",
-    "type": "tab",
-    "label": "Dashboard DHT11",
-    "disabled": false,
-    "info": "",
-    "env": []
-  },
-  {
-    "id": "e1c81a798aa15732",
-    "type": "mqtt in",
-    "z": "f074a6e9a2370e56",
-    "name": "Temperatura",
-    "topic": "casa/temperatura",
-    "qos": "2",
-    "datatype": "auto-detect",
-    "broker": "a7603f8e8449f783",
-    "nl": false,
-    "rap": true,
-    "rh": 0,
-    "inputs": 0,
-    "x": 150,
-    "y": 100,
-    "wires": [
-      [
-        "6db50ad59e19bb8d",
-        "0b0ba478bac76afc",
-        "salvar-sqlite-temp"
-      ]
-    ]
-  },
-  {
-    "id": "37541df21a380052",
-    "type": "mqtt in",
-    "z": "f074a6e9a2370e56",
-    "name": "Humidade",
-    "topic": "casa/humidade",
-    "qos": "2",
-    "datatype": "auto-detect",
-    "broker": "a7603f8e8449f783",
-    "nl": false,
-    "rap": true,
-    "rh": 0,
-    "inputs": 0,
-    "x": 160,
-    "y": 220,
-    "wires": [
-      [
-        "bd81c3bc1ab9bea8",
-        "6b33249370908bd3",
-        "salvar-sqlite-hum"
-      ]
-    ]
-  },
-  {
-    "id": "salvar-sqlite-temp",
-    "type": "function",
-    "z": "f074a6e9a2370e56",
-    "name": "Salvar Temp SQLite",
-    "func": "// Preparar dados para SQLite\nmsg.topic = \"INSERT INTO sensor_data (type, value) VALUES ('temperature', \" + parseFloat(msg.payload) + \")\";\nreturn msg;",
-    "outputs": 1,
-    "x": 400,
-    "y": 100,
-    "wires": [
-      ["sqlite-db"]
-    ]
-  },
-  {
-    "id": "salvar-sqlite-hum",
-    "type": "function",
-    "z": "f074a6e9a2370e56",
-    "name": "Salvar Hum SQLite",
-    "func": "// Preparar dados para SQLite\nmsg.topic = \"INSERT INTO sensor_data (type, value) VALUES ('humidity', \" + parseFloat(msg.payload) + \")\";\nreturn msg;",
-    "outputs": 1,
-    "x": 400,
-    "y": 220,
-    "wires": [
-      ["sqlite-db"]
-    ]
-  },
-  {
-    "id": "sqlite-db",
-    "type": "sqlite",
-    "z": "f074a6e9a2370e56",
-    "mydb": "sensor-db",
-    "sqlquery": "topic",
-    "name": "Banco de Dados Sensor",
-    "x": 600,
-    "y": 160,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "criar-tabela",
-    "type": "inject",
-    "z": "f074a6e9a2370e56",
-    "name": "Criar Tabela",
-    "props": [
-      {
-        "p": "topic",
-        "v": "CREATE TABLE IF NOT EXISTS sensor_data (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, value REAL)",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": true,
-    "onceDelay": "1",
-    "topic": "",
-    "x": 400,
-    "y": 40,
-    "wires": [
-      ["sqlite-db"]
-    ]
-  },
-  {
-    "id": "consultar-dados",
-    "type": "inject",
-    "z": "f074a6e9a2370e56",
-    "name": "Ver Histórico",
-    "props": [
-      {
-        "p": "topic",
-        "v": "SELECT * FROM sensor_data ORDER BY timestamp DESC LIMIT 10",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "",
-    "x": 400,
-    "y": 320,
-    "wires": [
-      ["sqlite-db"]
-    ]
-  },
-  {
-    "id": "alerta-temperatura",
-    "type": "function",
-    "z": "f074a6e9a2370e56",
-    "name": "Alerta Temperatura",
-    "func": "const LIMITE_ALTA = 28;\nconst LIMITE_BAIXA = 15;\n\nvar temp = parseFloat(msg.payload);\n\nif (temp > LIMITE_ALTA) {\n    msg.assunto = \"🔥 ALERTA: Temperatura Alta\";\n    msg.mensagem = `Temperatura crítica: ${temp}°C\\nLimite: ${LIMITE_ALTA}°C\\nHorário: ${new Date().toLocaleString()}`;\n    return [msg, null];\n}\n\nif (temp < LIMITE_BAIXA) {\n    msg.assunto = \"❄️ ALERTA: Temperatura Baixa\"; \n    msg.mensagem = `Temperatura baixa: ${temp}°C\\nLimite: ${LIMITE_BAIXA}°C\\nHorário: ${new Date().toLocaleString()}`;\n    return [msg, null];\n}\n\nreturn [null, null];",
-    "outputs": 2,
-    "x": 400,
-    "y": 300,
-    "wires": [
-      ["email-alerta"],
-      []
-    ]
-  },
-  {
-    "id": "email-alerta",
-    "type": "e-mail",
-    "z": "f074a6e9a2370e56",
-    "name": "Enviar Alerta E-mail",
-    "server": "smtp.gmail.com",
-    "port": "587",
-    "secure": false,
-    "tls": true,
-    "credentials": {
-      "user": "{{env.EMAIL_USER}}",
-      "password": "{{env.EMAIL_PASSWORD}}"
+    {
+        "id": "81c1146986926172",
+        "type": "ui_chart",
+        "z": "f074a6e9a2370e56",
+        "name": "Temperature graphics",
+        "group": "3f09d5abb3673bfb",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "Temperature Grafico",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "50",
+        "removeOlder": "3",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 720,
+        "y": 160,
+        "wires": [
+            []
+        ]
     },
-    "to": "{{env.EMAIL_TO}}",
-    "subject": "{{assunto}}",
-    "text": "{{mensagem}}",
-    "x": 650,
-    "y": 300,
-    "wires": []
-  },
-  {
-    "id": "6db50ad59e19bb8d",
-    "type": "ui_gauge",
-    "z": "f074a6e9a2370e56",
-    "name": "",
-    "group": "3f09d5abb3673bfb",
-    "order": 0,
-    "width": 0,
-    "height": 0,
-    "gtype": "gage",
-    "title": "Temperatura",
-    "label": "*C",
-    "format": "{{value}}",
-    "min": 0,
-    "max": "30",
-    "colors": [
-      "#00b500",
-      "#e6e600",
-      "#ca3838"
-    ],
-    "seg1": "",
-    "seg2": "",
-    "diff": false,
-    "className": "",
-    "x": 530,
-    "y": 200,
-    "wires": []
-  },
-  {
-    "id": "0b0ba478bac76afc",
-    "type": "debug",
-    "z": "f074a6e9a2370e56",
-    "name": "debug 1",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "false",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 520,
-    "y": 120,
-    "wires": []
-  },
-  {
-    "id": "bd81c3bc1ab9bea8",
-    "type": "debug",
-    "z": "f074a6e9a2370e56",
-    "name": "debug 2",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "false",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 540,
-    "y": 280,
-    "wires": []
-  },
-  {
-    "id": "6b33249370908bd3",
-    "type": "ui_chart",
-    "z": "f074a6e9a2370e56",
-    "name": "Humidade",
-    "group": "3f09d5abb3673bfb",
-    "order": 1,
-    "width": 0,
-    "height": 0,
-    "label": "Humidade",
-    "chartType": "line",
-    "legend": "false",
-    "xformat": "HH:mm:ss",
-    "interpolate": "linear",
-    "nodata": "",
-    "dot": false,
-    "ymin": "",
-    "ymax": "",
-    "removeOlder": 1,
-    "removeOlderPoints": "",
-    "removeOlderUnit": "3600",
-    "cutout": 0,
-    "useOneColor": false,
-    "useUTC": false,
-    "colors": [
-      "#1f77b4",
-      "#aec7e8",
-      "#ff7f0e",
-      "#2ca02c",
-      "#98df8a",
-      "#d62728",
-      "#ff9896",
-      "#9467bd",
-      "#c5b0d5"
-    ],
-    "outputs": 1,
-    "useDifferentColor": false,
-    "className": "",
-    "x": 550,
-    "y": 320,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "a7603f8e8449f783",
-    "type": "mqtt-broker",
-    "name": "TH",
-    "broker": "broker.emqx.io",
-    "port": 1883,
-    "clientid": "",
-    "autoConnect": true,
-    "usetls": false,
-    "protocolVersion": 4,
-    "keepalive": 60,
-    "cleansession": true,
-    "autoUnsubscribe": true,
-    "birthTopic": "",
-    "birthQos": "0",
-    "birthRetain": "false",
-    "birthPayload": "",
-    "birthMsg": {},
-    "closeTopic": "",
-    "closeQos": "0",
-    "closeRetain": "false",
-    "closePayload": "",
-    "closeMsg": {},
-    "willTopic": "",
-    "willQos": "0",
-    "willRetain": "false",
-    "willPayload": "",
-    "willMsg": {},
-    "userProps": "",
-    "sessionExpiry": ""
-  },
-  {
-    "id": "3f09d5abb3673bfb",
-    "type": "ui_group",
-    "name": "Temperatura e Humidade",
-    "tab": "d8fef3a0d83053ee",
-    "order": 1,
-    "disp": true,
-    "width": 6,
-    "collapse": false,
-    "className": ""
-  },
-  {
-    "id": "d8fef3a0d83053ee",
-    "type": "ui_tab",
-    "name": "DHT11",
-    "icon": "fa-sun",
-    "disabled": false,
-    "hidden": false
-  },
-  {
-    "id": "sensor-db",
-    "type": "sqlitedb",
-    "z": "",
-    "db": "sensor_data.db"
-  }
+    {
+        "id": "3f09d5abb3673bfb",
+        "type": "ui_group",
+        "name": "Temperatura e Humidade",
+        "tab": "d8fef3a0d83053ee",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "d8fef3a0d83053ee",
+        "type": "ui_tab",
+        "name": "DHT11",
+        "icon": "fa-sun",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "c2cf8e2823785be3",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
 ]
