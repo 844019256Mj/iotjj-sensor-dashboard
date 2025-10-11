@@ -201,7 +201,7 @@
         ]
     },
     {
-        "id": "19956c3e6b37e656",
+        "id": "8afb5a216a5dd85d",
         "type": "http request",
         "z": "f074a6e9a2370e56",
         "name": "OpenWeatherMap API",
@@ -216,38 +216,42 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 320,
-        "y": 400,
+        "x": 260,
+        "y": 460,
         "wires": [
             [
-                "7d0bf45ba1395325"
+                "4133f44256142176"
             ]
         ]
     },
     {
-        "id": "7d0bf45ba1395325",
+        "id": "4133f44256142176",
         "type": "function",
         "z": "f074a6e9a2370e56",
-        "name": "Processar Clima OWM",
-        "func": "// Processar Dados OpenWeatherMap - Versão Simplificada\nif (msg.payload && msg.payload.main && msg.payload.wind) {\n    \n    // Output 1: Pressão (para gauge de pressão)\n    var msg1 = {\n        payload: msg.payload.main.pressure,\n        topic: \"pressao\"\n    };\n    \n    // Output 2: Vento Velocidade (para gauge de vento)  \n    var msg2 = {\n        payload: msg.payload.wind.speed,\n        topic: \"vento_velocidade\"\n    };\n    \n    // Output 3: Descrição (para texto UI)\n    var descricao = msg.payload.weather[0].description || \"N/A\";\n    var msg3 = {\n        payload: `Pressão: ${msg.payload.main.pressure} hPa | Vento: ${msg.payload.wind.speed} m/s | ${descricao}`,\n        topic: \"descricao_clima\"\n    };\n    \n    return [msg1, msg2, msg3];\n}\n\nnode.error(\"Dados inválidos da API\");\nreturn [null, null, null];",
+        "name": "Processar Clima OWM COM PRECIPITAÇÃO",
+        "func": "// Processar Dados OpenWeatherMap - Precipitação Apenas Textual\nif (!msg.payload || !msg.payload.main || !msg.payload.wind) {\n    node.error(\"Dados inválidos da API: \" + JSON.stringify(msg.payload));\n    return [null, null, null];\n}\n\n// Debug: Log do que a API retornou (remova após testar)\nnode.warn(\"Resposta OWM: \" + JSON.stringify({ main: msg.payload.main, wind: msg.payload.wind, rain: msg.payload.rain, weather: msg.payload.weather }));\n\n// Output 1: Pressão (para gauge de pressão)\nvar msg1 = {\n    payload: msg.payload.main.pressure,\n    topic: \"pressao\"\n};\n\n// Output 2: Vento Velocidade (para gauge de vento)  \nvar msg2 = {\n    payload: msg.payload.wind.speed,\n    topic: \"vento_velocidade\"\n};\n\n// Output 3: Descrição (para texto UI) - Com precipitação sempre visível\nvar precipitacao = 0;\nif (msg.payload.rain && msg.payload.rain[\"1h\"]) {\n    precipitacao = msg.payload.rain[\"1h\"];\n} else if (msg.payload.rain && msg.payload.rain[\"3h\"]) {\n    // Fallback para 3h se disponível\n    precipitacao = msg.payload.rain[\"3h\"] / 3;\n}\n\nvar descricao = msg.payload.weather ? msg.payload.weather[0].description || \"N/A\" : \"N/A\";\nvar textoPrecipitacao;\nvar iconeChuva = precipitacao > 0 ? \"🌧️\" : \"🌤️\";\nif (precipitacao > 0) {\n    textoPrecipitacao = ` | ${iconeChuva} Chuva: ${precipitacao.toFixed(1)} mm`;\n} else {\n    textoPrecipitacao = ` | ${iconeChuva} Sem chuva: 0 mm`;\n}\n\nvar msg3 = {\n    payload: `Pressão: ${msg.payload.main.pressure} hPa | Vento: ${msg.payload.wind.speed} m/s${textoPrecipitacao} | ${descricao.toUpperCase()}`,\n    topic: \"descricao_clima\"\n};\n\nnode.warn(\"Precipitação processada: \" + precipitacao + \" mm\");  // Debug\n\nreturn [msg1, msg2, msg3];",
         "outputs": 3,
         "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
         "x": 540,
         "y": 400,
         "wires": [
             [
-                "33ae54737b4557fe"
+                "3c7eddfb0377af25"
             ],
             [
-                "6dc4cfeabdb8566d"
+                "b4a54a877a3f64b8"
             ],
             [
-                "6908b76efe5d8cc3"
+                "39f7f5c85f8fa931"
             ]
         ]
     },
     {
-        "id": "33ae54737b4557fe",
+        "id": "3c7eddfb0377af25",
         "type": "ui_gauge",
         "z": "f074a6e9a2370e56",
         "name": "Pressão Externa",
@@ -270,12 +274,12 @@
         "seg2": "",
         "diff": false,
         "className": "",
-        "x": 770,
+        "x": 870,
         "y": 360,
         "wires": []
     },
     {
-        "id": "6dc4cfeabdb8566d",
+        "id": "b4a54a877a3f64b8",
         "type": "ui_gauge",
         "z": "f074a6e9a2370e56",
         "name": "Velocidade do Vento",
@@ -298,12 +302,12 @@
         "seg2": "",
         "diff": false,
         "className": "",
-        "x": 780,
+        "x": 880,
         "y": 400,
         "wires": []
     },
     {
-        "id": "6908b76efe5d8cc3",
+        "id": "39f7f5c85f8fa931",
         "type": "ui_text",
         "z": "f074a6e9a2370e56",
         "group": "grupo-clima-externo",
@@ -319,12 +323,12 @@
         "font": "",
         "fontSize": "",
         "color": "#000000",
-        "x": 770,
+        "x": 870,
         "y": 440,
         "wires": []
     },
     {
-        "id": "fb501ce6bdb2112e",
+        "id": "39d8dbd25a671b6c",
         "type": "inject",
         "z": "f074a6e9a2370e56",
         "name": "Atualizar Clima",
@@ -344,11 +348,11 @@
         "topic": "update",
         "payload": "true",
         "payloadType": "bool",
-        "x": 120,
+        "x": 80,
         "y": 400,
         "wires": [
             [
-                "19956c3e6b37e656"
+                "8afb5a216a5dd85d"
             ]
         ]
     },
@@ -414,7 +418,7 @@
         "hidden": false
     },
     {
-        "id": "2b5e0701db1b18a2",
+        "id": "7767ee1a89983a7b",
         "type": "global-config",
         "env": [],
         "modules": {
