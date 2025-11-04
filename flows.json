@@ -363,6 +363,11 @@
         "name": "Combinar Dados",
         "func": "// COMBINAR TEMPERATURA E HUMIDADE NA MESMA LINHA\nif (msg.topic === 'casa/temperatura') {\n    context.set('ultima_temperatura', parseFloat(msg.payload));\n    node.warn('📊 Temperatura guardada: ' + parseFloat(msg.payload));\n} \nelse if (msg.topic === 'casa/humidade') {\n    context.set('ultima_humidade', parseFloat(msg.payload));\n    node.warn('💧 Humidade guardada: ' + parseFloat(msg.payload));\n}\n\n// Verificar se temos ambos valores\nvar temperatura = context.get('ultima_temperatura');\nvar humidade = context.get('ultima_humidade');\n\n// Se temos ambos, inserir no banco\nif (temperatura !== undefined && humidade !== undefined) {\n    node.warn('✅ Inserindo COMBINADO: Temp=' + temperatura + '°C, Hum=' + humidade + '%');\n    \n    msg.params = [temperatura, humidade];\n    msg.payload = {\n        \"sql\": \"INSERT INTO dht11_data (temperatura, humidade) VALUES (?, ?)\"\n    };\n    \n    // Limpar contexto após inserir\n    context.set('ultima_temperatura', undefined);\n    context.set('ultima_humidade', undefined);\n    \n    return msg;\n}\n\nreturn null;",
         "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
         "x": 270,
         "y": 240,
         "wires": [
@@ -397,8 +402,8 @@
         "console": false,
         "tostatus": false,
         "complete": "true",
-        "x": 760,
-        "y": 240,
+        "x": 740,
+        "y": 300,
         "wires": []
     },
     {
@@ -422,7 +427,7 @@
         "topic": "atualizar_tabela",
         "payload": "",
         "payloadType": "date",
-        "x": 140,
+        "x": 100,
         "y": 360,
         "wires": [
             [
@@ -461,8 +466,8 @@
         "resendOnRefresh": false,
         "templateScope": "local",
         "className": "",
-        "x": 1060,
-        "y": 300,
+        "x": 700,
+        "y": 460,
         "wires": [
             []
         ]
@@ -484,8 +489,8 @@
         "font": "",
         "fontSize": "",
         "color": "#000000",
-        "x": 1070,
-        "y": 360,
+        "x": 730,
+        "y": 500,
         "wires": []
     },
     {
@@ -550,8 +555,8 @@
         "name": "Processar para Template",
         "func": "// Processar dados para o UI Template - CORRIGIDO\nnode.warn('🔍 Iniciando processamento de dados...');\n\nif (msg.payload && msg.payload.length > 0) {\n    \n    // 1. Preparar dados para a tabela\n    var dadosTabela = [];\n    var maxTemp = 0;\n    var maxHum = 0;\n    \n    msg.payload.forEach(function(registro, index) {\n        // FORMATAR DATA - AGORA CORRETO!\n        var dataFormatada = '-'; // valor padrão\n        \n        if (registro.timestamp) {\n            try {\n                // O timestamp já vem no formato correto: \"2025-10-15 18:26:51\"\n                var data = new Date(registro.timestamp);\n                if (!isNaN(data.getTime())) {\n                    dataFormatada = data.toLocaleString('pt-PT');\n                } else {\n                    // Se não conseguir converter, usar o timestamp original\n                    dataFormatada = registro.timestamp;\n                }\n            } catch (e) {\n                node.warn('⚠️ Erro ao formatar data: ' + e);\n                dataFormatada = registro.timestamp; // usar original\n            }\n        }\n        \n        var linha = {\n            data_hora: dataFormatada,\n            temperatura: registro.temperatura ? registro.temperatura.toFixed(1) : '-',\n            humidade: registro.humidade ? registro.humidade.toFixed(1) : '-',\n            alternate: (index % 2 === 0)\n        };\n        dadosTabela.push(linha);\n        \n        // Calcular máximos\n        if (registro.temperatura > maxTemp) maxTemp = registro.temperatura;\n        if (registro.humidade > maxHum) maxHum = registro.humidade;\n    });\n    \n    // 2. Preparar estatísticas\n    var stats = {\n        total: dadosTabela.length,\n        max_temp: maxTemp.toFixed(1),\n        max_hum: maxHum.toFixed(1),\n        ultima_data: dadosTabela[0].data_hora\n    };\n    \n    node.warn('✅ Dados processados: ' + dadosTabela.length + ' registros');\n    node.warn('📅 Primeira data formatada: ' + dadosTabela[0].data_hora);\n    \n    // 3. Enviar dados\n    return [\n        { payload: dadosTabela },  // Para a tabela\n        { payload: stats }         // Para as estatísticas\n    ];\n}\n\n// Se não há dados\nnode.warn('⚠️ Nenhum dado para processar - enviando vazio');\nreturn [\n    { payload: [] },  // Tabela vazia\n    { payload: { total: 0, max_temp: '0.0', max_hum: '0.0', ultima_data: 'Nenhum' } }\n];",
         "outputs": 2,
-        "x": 810,
-        "y": 340,
+        "x": 590,
+        "y": 400,
         "wires": [
             [
                 "24ebbf5dd00eb31f"
@@ -560,6 +565,402 @@
                 "1e15055f786319ed"
             ]
         ]
+    },
+    {
+        "id": "7e875dac882dd734",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Tensão",
+        "topic": "casa/voltagem",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 50,
+        "y": 560,
+        "wires": [
+            [
+                "5c90151eb6b5f8c6",
+                "906d6e6cd945c35c"
+            ]
+        ]
+    },
+    {
+        "id": "094e5426dd5a9615",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Corrente",
+        "topic": "casa/corrente",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 60,
+        "y": 620,
+        "wires": [
+            [
+                "33eb1163f513a6d8",
+                "d5433943a128f3a8"
+            ]
+        ]
+    },
+    {
+        "id": "125786c993ef127c",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Potência Activa",
+        "topic": "casa/potencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 80,
+        "y": 680,
+        "wires": [
+            [
+                "9719fa563ac0a84c",
+                "62a166eaa0429455"
+            ]
+        ]
+    },
+    {
+        "id": "0726f113c033bf97",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Energia Consumida",
+        "topic": "casa/energia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 90,
+        "y": 740,
+        "wires": [
+            [
+                "4034757e3cc55333",
+                "0d1e64db504d3713"
+            ]
+        ]
+    },
+    {
+        "id": "f8559e93bae2222a",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Factor de Potência",
+        "topic": "casa/fator_potencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 90,
+        "y": 800,
+        "wires": [
+            [
+                "b29d10dffa6818dd",
+                "89d80d6319b940e6"
+            ]
+        ]
+    },
+    {
+        "id": "769a5e209e3d6514",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Frequência",
+        "topic": "casa/frequencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 60,
+        "y": 860,
+        "wires": [
+            [
+                "d82400e0e1b40399",
+                "9c250cde1cfb703d"
+            ]
+        ]
+    },
+    {
+        "id": "5c90151eb6b5f8c6",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Corrente",
+        "group": "c62327b96e8da467",
+        "order": 3,
+        "width": "3",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Tensao",
+        "label": "V",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "270",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 340,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "33eb1163f513a6d8",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Corrente",
+        "group": "c62327b96e8da467",
+        "order": 1,
+        "width": "3",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Corrente",
+        "label": "A",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "15",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 340,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "9719fa563ac0a84c",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Potencia Activa",
+        "group": "c62327b96e8da467",
+        "order": 2,
+        "width": "3",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Potencia Activa",
+        "label": "W",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 360,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "4034757e3cc55333",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "",
+        "group": "c62327b96e8da467",
+        "order": 4,
+        "width": "3",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Energia",
+        "label": "J",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 340,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "b29d10dffa6818dd",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Factor de Potencia",
+        "group": "c62327b96e8da467",
+        "order": 5,
+        "width": "3",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Factor de Potencia",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 370,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "d82400e0e1b40399",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Frequencia",
+        "group": "c62327b96e8da467",
+        "order": 6,
+        "width": "3",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Frequencia",
+        "label": "Hz",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "70",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 350,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "906d6e6cd945c35c",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 535,
+        "y": 557,
+        "wires": []
+    },
+    {
+        "id": "d5433943a128f3a8",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 535,
+        "y": 617,
+        "wires": []
+    },
+    {
+        "id": "62a166eaa0429455",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 555,
+        "y": 677,
+        "wires": []
+    },
+    {
+        "id": "0d1e64db504d3713",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 555,
+        "y": 737,
+        "wires": []
+    },
+    {
+        "id": "89d80d6319b940e6",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 575,
+        "y": 797,
+        "wires": []
+    },
+    {
+        "id": "9c250cde1cfb703d",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 555,
+        "y": 857,
+        "wires": []
     },
     {
         "id": "a7603f8e8449f783",
@@ -632,6 +1033,17 @@
         "className": ""
     },
     {
+        "id": "c62327b96e8da467",
+        "type": "ui_group",
+        "name": "Monitor Energia",
+        "tab": "d8fef3a0d83053ee",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
         "id": "d8fef3a0d83053ee",
         "type": "ui_tab",
         "name": "DHT11",
@@ -640,7 +1052,7 @@
         "hidden": false
     },
     {
-        "id": "27b83cbbb8aeb601",
+        "id": "aa7a00c5e9380c71",
         "type": "global-config",
         "env": [],
         "modules": {
