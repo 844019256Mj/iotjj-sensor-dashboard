@@ -358,219 +358,32 @@
         ]
     },
     {
-        "id": "0202ba6f221da185",
-        "type": "function",
-        "z": "c935ee3111fcba88",
-        "name": "Combinar Dados",
-        "func": "// COMBINAR TEMPERATURA E HUMIDADE NA MESMA LINHA\nif (msg.topic === 'casa/temperatura') {\n    context.set('ultima_temperatura', parseFloat(msg.payload));\n    node.warn('📊 Temperatura guardada: ' + parseFloat(msg.payload));\n} \nelse if (msg.topic === 'casa/humidade') {\n    context.set('ultima_humidade', parseFloat(msg.payload));\n    node.warn('💧 Humidade guardada: ' + parseFloat(msg.payload));\n}\n\n// Verificar se temos ambos valores\nvar temperatura = context.get('ultima_temperatura');\nvar humidade = context.get('ultima_humidade');\n\n// Se temos ambos, inserir no banco\nif (temperatura !== undefined && humidade !== undefined) {\n    node.warn('✅ Inserindo COMBINADO: Temp=' + temperatura + '°C, Hum=' + humidade + '%');\n    \n    msg.params = [temperatura, humidade];\n    msg.payload = {\n        \"sql\": \"INSERT INTO dht11_data (temperatura, humidade) VALUES (?, ?)\"\n    };\n    \n    // Limpar contexto após inserir\n    context.set('ultima_temperatura', undefined);\n    context.set('ultima_humidade', undefined);\n    \n    return msg;\n}\n\nreturn null;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 270,
-        "y": 240,
-        "wires": [
-            [
-                "de86037948e86e2d"
-            ]
-        ]
-    },
-    {
-        "id": "de86037948e86e2d",
-        "type": "sqlite",
-        "z": "c935ee3111fcba88",
-        "mydb": "2a8159e9c173d43d",
-        "sqlquery": "prepared",
-        "sql": "INSERT INTO dht11_data (temperatura, humidade) VALUES (?, ?)",
-        "name": "Inserir Dados Combinados",
-        "x": 520,
-        "y": 240,
-        "wires": [
-            [
-                "f498f62dd1ce8521"
-            ]
-        ]
-    },
-    {
-        "id": "f498f62dd1ce8521",
-        "type": "debug",
-        "z": "c935ee3111fcba88",
-        "name": "Debug Inserção",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "x": 740,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "423b2a3adabea159",
-        "type": "inject",
-        "z": "c935ee3111fcba88",
-        "name": "🔄 Atualizar Tabela",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "30",
-        "crontab": "",
-        "once": true,
-        "onceDelay": 0.1,
-        "topic": "atualizar_tabela",
-        "payload": "",
-        "payloadType": "date",
-        "x": 100,
-        "y": 360,
-        "wires": [
-            [
-                "4e5a6ad7f9039544"
-            ]
-        ]
-    },
-    {
-        "id": "63c83d617a3df32c",
-        "type": "sqlite",
-        "z": "c935ee3111fcba88",
-        "mydb": "2a8159e9c173d43d",
-        "sqlquery": "prepared",
-        "sql": "SELECT * FROM dht11_data ORDER BY timestamp DESC LIMIT 5",
-        "name": "Consultar Dados",
-        "x": 570,
-        "y": 340,
-        "wires": [
-            [
-                "ebd7f99c39cbe91a"
-            ]
-        ]
-    },
-    {
-        "id": "24ebbf5dd00eb31f",
-        "type": "ui_template",
-        "z": "c935ee3111fcba88",
-        "group": "group-dashboard",
-        "name": "📊 Tabela de Dados",
-        "order": 3,
-        "width": 12,
-        "height": 8,
-        "format": "<div style='padding: 15px; font-family: Arial, sans-serif;'>\n  <h3 style='color: #2c3e50; margin-bottom: 15px;'>📅 Histórico de Dados - Sistema Solar</h3>\n  \n  <div style='overflow-x: auto;'>\n    <table style='width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 14px;'>\n      <thead>\n        <tr style='background-color: #34495e; color: white;'>\n          <th style='padding: 12px; border: 1px solid #ddd; text-align: left;'>Data/Hora</th>\n          <th style='padding: 12px; border: 1px solid #ddd; text-align: center;'>🌡️ Temperatura</th>\n          <th style='padding: 12px; border: 1px solid #ddd; text-align: center;'>💧 Humidade</th>\n        </tr>\n      </thead>\n      <tbody id=\"tabela-corpo\">\n        <tr>\n          <td colspan=\"3\" style=\"padding: 20px; text-align: center; color: #7f8c8d;\">\n            📋 Carregando dados...\n          </td>\n        </tr>\n      </tbody>\n    </table>\n  </div>\n  \n  <div style='margin-top: 10px; font-size: 12px; color: #95a5a6; text-align: center;'>\n    Atualizado: <span id=\"update-time\"></span>\n  </div>\n</div>\n\n<script>\n  // Atualizar timestamp\n  document.getElementById('update-time').textContent = new Date().toLocaleString('pt-PT');\n  \n  // Função para atualizar a tabela quando chegarem dados\n  function atualizarTabela(dados) {\n    var tbody = document.getElementById('tabela-corpo');\n    \n    if (!dados || dados.length === 0) {\n      tbody.innerHTML = '<tr><td colspan=\"3\" style=\"padding: 20px; text-align: center; color: #7f8c8d;\">📋 Aguardando dados do sensor...</td></tr>';\n      return;\n    }\n    \n    var html = '';\n    dados.forEach(function(item, index) {\n      var bgColor = index % 2 === 0 ? '#f8f9fa' : 'white';\n      html += '<tr style=\"background-color: ' + bgColor + ';\">';\n      html += '<td style=\"padding: 10px; border: 1px solid #ddd;\">' + (item.data_hora || '-') + '</td>';\n      html += '<td style=\"padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #e74c3c;\">' + (item.temperatura || '-') + '°C</td>';\n      html += '<td style=\"padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #3498db;\">' + (item.humidade || '-') + '%</td>';\n      html += '</tr>';\n    });\n    \n    tbody.innerHTML = html;\n    document.getElementById('update-time').textContent = new Date().toLocaleString('pt-PT');\n  }\n  \n  // Observar mudanças nos dados\n  this.scope.$watch('msg', function(newMsg) {\n    if (newMsg && newMsg.payload) {\n      atualizarTabela(newMsg.payload);\n    }\n  });\n  \n  // Atualizar inicialmente se já houver dados\n  if (this.scope.msg && this.scope.msg.payload) {\n    atualizarTabela(this.scope.msg.payload);\n  }\n</script>",
-        "storeOutMessages": true,
-        "fwdInMessages": true,
-        "resendOnRefresh": false,
-        "templateScope": "local",
-        "className": "",
-        "x": 700,
-        "y": 460,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "1e15055f786319ed",
-        "type": "ui_text",
-        "z": "c935ee3111fcba88",
-        "group": "group-dashboard",
-        "order": 4,
-        "width": 6,
-        "height": 4,
-        "name": "📈 Resumo Estatístico",
-        "label": "",
-        "format": "📊 RESUMO ESTATÍSTICO📋 Total de Registros: {{payload.total}}🔥 Máx. Temperatura: {{payload.max_temp}}°C💧 Máx. Humidade: {{payload.max_hum}}%⏰ Última Leitura: {{payload.ultima_data}}",
-        "layout": "",
-        "className": "",
-        "style": false,
-        "font": "",
-        "fontSize": "",
-        "color": "#000000",
-        "x": 730,
-        "y": 500,
-        "wires": []
-    },
-    {
-        "id": "f4c72a2c6569215c",
-        "type": "mqtt in",
-        "z": "c935ee3111fcba88",
-        "name": "Temperatura",
-        "topic": "casa/temperatura",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": false,
-        "inputs": 0,
-        "x": 70,
-        "y": 220,
-        "wires": [
-            [
-                "0202ba6f221da185"
-            ]
-        ]
-    },
-    {
-        "id": "4218296fbd052ef5",
-        "type": "mqtt in",
+        "id": "d8abb9c5ea7d5509",
+        "type": "ui_gauge",
         "z": "c935ee3111fcba88",
         "name": "Humidade",
-        "topic": "casa/humidade",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": false,
-        "inputs": 0,
-        "x": 60,
-        "y": 280,
-        "wires": [
-            [
-                "0202ba6f221da185"
-            ]
-        ]
-    },
-    {
-        "id": "4e5a6ad7f9039544",
-        "type": "function",
-        "z": "c935ee3111fcba88",
-        "name": "Consultar para Tabela",
-        "func": "// Consultar dados combinados do SQLite - VERSÃO DEFINITIVA\nif (msg.topic === 'atualizar_tabela' || msg.topic === 'casa/temperatura' || msg.topic === 'casa/humidade') {\n    \n    // CONSULTA CORRIGIDA - Várias tentativas de formato de data\n    msg.payload = {\n        \"sql\": \"SELECT timestamp as data_bruta, temperatura, humidade FROM dht11_data WHERE temperatura IS NOT NULL AND humidade IS NOT NULL ORDER BY timestamp DESC LIMIT 15\"\n    };\n    msg.params = [];\n    \n    node.warn('🔍 Executando consulta SQL (timestamp bruto)...');\n    return msg;\n}\nreturn null;",
-        "outputs": 1,
-        "x": 340,
-        "y": 340,
-        "wires": [
-            [
-                "63c83d617a3df32c"
-            ]
-        ]
-    },
-    {
-        "id": "ebd7f99c39cbe91a",
-        "type": "function",
-        "z": "c935ee3111fcba88",
-        "name": "Processar para Template",
-        "func": "// Processar dados para o UI Template - CORRIGIDO\nnode.warn('🔍 Iniciando processamento de dados...');\n\nif (msg.payload && msg.payload.length > 0) {\n    \n    // 1. Preparar dados para a tabela\n    var dadosTabela = [];\n    var maxTemp = 0;\n    var maxHum = 0;\n    \n    msg.payload.forEach(function(registro, index) {\n        // FORMATAR DATA - AGORA CORRETO!\n        var dataFormatada = '-'; // valor padrão\n        \n        if (registro.timestamp) {\n            try {\n                // O timestamp já vem no formato correto: \"2025-10-15 18:26:51\"\n                var data = new Date(registro.timestamp);\n                if (!isNaN(data.getTime())) {\n                    dataFormatada = data.toLocaleString('pt-PT');\n                } else {\n                    // Se não conseguir converter, usar o timestamp original\n                    dataFormatada = registro.timestamp;\n                }\n            } catch (e) {\n                node.warn('⚠️ Erro ao formatar data: ' + e);\n                dataFormatada = registro.timestamp; // usar original\n            }\n        }\n        \n        var linha = {\n            data_hora: dataFormatada,\n            temperatura: registro.temperatura ? registro.temperatura.toFixed(1) : '-',\n            humidade: registro.humidade ? registro.humidade.toFixed(1) : '-',\n            alternate: (index % 2 === 0)\n        };\n        dadosTabela.push(linha);\n        \n        // Calcular máximos\n        if (registro.temperatura > maxTemp) maxTemp = registro.temperatura;\n        if (registro.humidade > maxHum) maxHum = registro.humidade;\n    });\n    \n    // 2. Preparar estatísticas\n    var stats = {\n        total: dadosTabela.length,\n        max_temp: maxTemp.toFixed(1),\n        max_hum: maxHum.toFixed(1),\n        ultima_data: dadosTabela[0].data_hora\n    };\n    \n    node.warn('✅ Dados processados: ' + dadosTabela.length + ' registros');\n    node.warn('📅 Primeira data formatada: ' + dadosTabela[0].data_hora);\n    \n    // 3. Enviar dados\n    return [\n        { payload: dadosTabela },  // Para a tabela\n        { payload: stats }         // Para as estatísticas\n    ];\n}\n\n// Se não há dados\nnode.warn('⚠️ Nenhum dado para processar - enviando vazio');\nreturn [\n    { payload: [] },  // Tabela vazia\n    { payload: { total: 0, max_temp: '0.0', max_hum: '0.0', ultima_data: 'Nenhum' } }\n];",
-        "outputs": 2,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 590,
-        "y": 400,
-        "wires": [
-            [
-                "24ebbf5dd00eb31f"
-            ],
-            [
-                "1e15055f786319ed"
-            ]
-        ]
+        "group": "3f09d5abb3673bfb",
+        "order": 3,
+        "width": "3",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Humidade",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#008fb3",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 610,
+        "y": 120,
+        "wires": []
     },
     {
         "id": "7e875dac882dd734",
@@ -586,7 +399,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 50,
-        "y": 560,
+        "y": 220,
         "wires": [
             [
                 "5c90151eb6b5f8c6",
@@ -608,7 +421,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 60,
-        "y": 620,
+        "y": 280,
         "wires": [
             [
                 "33eb1163f513a6d8",
@@ -630,7 +443,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 80,
-        "y": 680,
+        "y": 340,
         "wires": [
             [
                 "9719fa563ac0a84c",
@@ -652,7 +465,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 90,
-        "y": 740,
+        "y": 400,
         "wires": [
             [
                 "4034757e3cc55333",
@@ -674,7 +487,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 90,
-        "y": 800,
+        "y": 460,
         "wires": [
             [
                 "b29d10dffa6818dd",
@@ -696,7 +509,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 60,
-        "y": 860,
+        "y": 520,
         "wires": [
             [
                 "d82400e0e1b40399",
@@ -729,7 +542,7 @@
         "diff": false,
         "className": "",
         "x": 340,
-        "y": 560,
+        "y": 220,
         "wires": []
     },
     {
@@ -757,7 +570,7 @@
         "diff": false,
         "className": "",
         "x": 340,
-        "y": 620,
+        "y": 280,
         "wires": []
     },
     {
@@ -785,7 +598,7 @@
         "diff": false,
         "className": "",
         "x": 360,
-        "y": 680,
+        "y": 340,
         "wires": []
     },
     {
@@ -813,7 +626,7 @@
         "diff": false,
         "className": "",
         "x": 340,
-        "y": 740,
+        "y": 400,
         "wires": []
     },
     {
@@ -841,7 +654,7 @@
         "diff": false,
         "className": "",
         "x": 370,
-        "y": 800,
+        "y": 460,
         "wires": []
     },
     {
@@ -869,7 +682,7 @@
         "diff": false,
         "className": "",
         "x": 350,
-        "y": 860,
+        "y": 520,
         "wires": []
     },
     {
@@ -885,7 +698,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 535,
-        "y": 557,
+        "y": 217,
         "wires": []
     },
     {
@@ -901,7 +714,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 535,
-        "y": 617,
+        "y": 277,
         "wires": []
     },
     {
@@ -917,7 +730,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 555,
-        "y": 677,
+        "y": 337,
         "wires": []
     },
     {
@@ -933,7 +746,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 555,
-        "y": 737,
+        "y": 397,
         "wires": []
     },
     {
@@ -949,7 +762,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 575,
-        "y": 797,
+        "y": 457,
         "wires": []
     },
     {
@@ -965,35 +778,535 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 555,
-        "y": 857,
+        "y": 517,
         "wires": []
     },
     {
-        "id": "d8abb9c5ea7d5509",
-        "type": "ui_gauge",
+        "id": "441bb44a0eba67c8",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Temperatura",
+        "topic": "casa/temperatura",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 70,
+        "y": 620,
+        "wires": [
+            [
+                "d080229a21ef8a66"
+            ]
+        ]
+    },
+    {
+        "id": "5f685e80cd960c6a",
+        "type": "mqtt in",
         "z": "c935ee3111fcba88",
         "name": "Humidade",
-        "group": "3f09d5abb3673bfb",
-        "order": 3,
-        "width": "3",
-        "height": "2",
-        "gtype": "gage",
-        "title": "Humidade",
-        "label": "%",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "100",
-        "colors": [
-            "#008fb3",
-            "#e6e600",
-            "#ca3838"
+        "topic": "casa/humidade",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 60,
+        "y": 560,
+        "wires": [
+            [
+                "d080229a21ef8a66"
+            ]
+        ]
+    },
+    {
+        "id": "d080229a21ef8a66",
+        "type": "function",
+        "z": "c935ee3111fcba88",
+        "name": "Preparar Inserção",
+        "func": "var topic = msg.topic;\nvar value = parseFloat(msg.payload);\n\nif (topic === \"casa/temperatura\") {\n    context.global.set(\"temperatura\", value);\n} else if (topic === \"casa/humidade\") {\n    context.global.set(\"humidade\", value);\n} else {\n    node.warn(\"Tópico desconhecido: \" + topic);\n    return null;\n}\n\nvar temp = context.global.get(\"temperatura\");\nvar hum = context.global.get(\"humidade\");\n\nif (temp !== undefined && hum !== undefined) {\n    var newMsg = {};\n    newMsg.method = \"POST\";\n    newMsg.url = \"https://juxgwiqblikaxgyjeqiv.supabase.co/rest/v1/dht11_data\";\n    newMsg.headers = {};\n    newMsg.headers[\"Content-Type\"] = \"application/json\";\n    newMsg.headers[\"apikey\"] = \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGd3aXFibGlrYXhneWplcWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDQ5NDQsImV4cCI6MjA3NjE4MDk0NH0.Nw9SVhqHNwSLjNeVlC3hNZj2uULR2oq88esrGXvMQec\";\n    newMsg.headers[\"Authorization\"] = \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGd3aXFibGlrYXhneWplcWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDQ5NDQsImV4cCI6MjA3NjE4MDk0NH0.Nw9SVhqHNwSLjNeVlC3hNZj2uULR2oq88esrGXvMQec\";\n    newMsg.headers[\"Prefer\"] = \"return=minimal\";\n    newMsg.payload = {\n        \"temperatura\": temp,\n        \"humidade\": hum\n    };\n    \n    context.global.set(\"temperatura\", undefined);\n    context.global.set(\"humidade\", undefined);\n    \n    return [newMsg];\n} else {\n    node.warn(\"Aguardando dados: temp=\" + temp + \", hum=\" + hum);\n    return null;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 580,
+        "wires": [
+            [
+                "6cc15501d19e1dee"
+            ]
+        ]
+    },
+    {
+        "id": "6cc15501d19e1dee",
+        "type": "http request",
+        "z": "c935ee3111fcba88",
+        "name": "Inserir no Supabase",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 490,
+        "y": 580,
+        "wires": [
+            [
+                "71c176ef05f9b8a6"
+            ]
+        ]
+    },
+    {
+        "id": "71c176ef05f9b8a6",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "Resultado",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "8a95501ce3c9d21a",
+        "type": "function",
+        "z": "c935ee3111fcba88",
+        "name": "Preparar Inserção PZEM",
+        "func": "var topic = msg.topic;\nvar value = msg.payload;\n\n// Salva no contexto baseado no tópico (converte para float se for número)\nif (topic === \"casa/voltagem\") {\n    context.global.set(\"voltage\", parseFloat(value));\n} else if (topic === \"casa/corrente\") {\n    context.global.set(\"current\", parseFloat(value));\n} else if (topic === \"casa/frequencia\") {\n    context.global.set(\"frequencia\", parseFloat(value));\n} else if (topic === \"casa/potencia\") {\n    context.global.set(\"power\", parseFloat(value));\n} else if (topic === \"casa/energia\") {\n    context.global.set(\"energy\", parseFloat(value));\n} else if (topic === \"casa/fator_potencia\") {\n    context.global.set(\"fator_potencia\", parseFloat(value));\n} else {\n    node.warn(\"Tópico desconhecido: \" + topic);\n    return null;\n}\n\n// Verifica se TODOS os campos estão disponíveis\nvar voltage = context.global.get(\"voltage\");\nvar current = context.global.get(\"current\");\nvar frequencia = context.global.get(\"frequencia\");\nvar power = context.global.get(\"power\");\nvar energy = context.global.get(\"energy\");\nvar fator_potencia = context.global.get(\"fator_potencia\");\n\nif (voltage !== undefined && current !== undefined && frequencia !== undefined && power !== undefined && energy !== undefined && fator_potencia !== undefined) {\n    // Todos disponíveis: monta payload e envia\n    var newMsg = {};\n    newMsg.method = \"POST\";\n    newMsg.url = \"https://juxgwiqblikaxgyjeqiv.supabase.co/rest/v1/energy_readings\";\n    newMsg.headers = {};\n    newMsg.headers[\"Content-Type\"] = \"application/json\";\n    newMsg.headers[\"apikey\"] = \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGd3aXFibGlrYXhneWplcWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDQ5NDQsImV4cCI6MjA3NjE4MDk0NH0.Nw9SVhqHNwSLjNeVlC3hNZj2uULR2oq88esrGXvMQec\";\n    newMsg.headers[\"Authorization\"] = \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGd3aXFibGlrYXhneWplcWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDQ5NDQsImV4cCI6MjA3NjE4MDk0NH0.Nw9SVhqHNwSLjNeVlC3hNZj2uULR2oq88esrGXvMQec\";\n    newMsg.headers[\"Prefer\"] = \"return=minimal\";\n    newMsg.payload = {\n        \"voltage\": voltage,\n        \"current\": current,\n        \"frequencia\": frequencia,\n        \"power\": power,\n        \"energy\": energy,\n        \"fator_potencia\": fator_potencia,\n        \"device_id\": \"pz001\"  // Hardcoded; ajuste se vier de tópico\n    };\n    \n    // Limpa contexto para próxima leitura\n    context.global.set(\"voltage\", undefined);\n    context.global.set(\"current\", undefined);\n    context.global.set(\"frequencia\", undefined);\n    context.global.set(\"power\", undefined);\n    context.global.set(\"energy\", undefined);\n    context.global.set(\"fator_potencia\", undefined);\n    \n    return [newMsg];\n} else {\n    // Ainda aguardando algum campo\n    node.warn(\"Aguardando dados: voltage=\" + voltage + \", current=\" + current + \", frequencia=\" + frequencia + \", power=\" + power + \", energy=\" + energy + \", fator_potencia=\" + fator_potencia);\n    return null;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 301,
+        "y": 693,
+        "wires": [
+            [
+                "aefabd1461ffbb01"
+            ]
+        ]
+    },
+    {
+        "id": "aefabd1461ffbb01",
+        "type": "http request",
+        "z": "c935ee3111fcba88",
+        "name": "Inserir no Supabase",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 700,
+        "wires": [
+            [
+                "738e7c94719fb113"
+            ]
+        ]
+    },
+    {
+        "id": "738e7c94719fb113",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "Resultado",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "490514c29dda30d2",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Tensão",
+        "topic": "casa/voltagem",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 50,
+        "y": 680,
+        "wires": [
+            [
+                "8a95501ce3c9d21a"
+            ]
+        ]
+    },
+    {
+        "id": "5066389fa3b5ea17",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Corrente",
+        "topic": "casa/corrente",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 60,
+        "y": 740,
+        "wires": [
+            [
+                "8a95501ce3c9d21a"
+            ]
+        ]
+    },
+    {
+        "id": "b50321c52f58f453",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Potência Activa",
+        "topic": "casa/potencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 80,
+        "y": 800,
+        "wires": [
+            [
+                "8a95501ce3c9d21a"
+            ]
+        ]
+    },
+    {
+        "id": "63b9b1b397088179",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Energia Consumida",
+        "topic": "casa/energia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 90,
+        "y": 860,
+        "wires": [
+            [
+                "8a95501ce3c9d21a"
+            ]
+        ]
+    },
+    {
+        "id": "999cd3c5cefd351e",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Factor de Potência",
+        "topic": "casa/fator_potencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 90,
+        "y": 920,
+        "wires": [
+            [
+                "8a95501ce3c9d21a"
+            ]
+        ]
+    },
+    {
+        "id": "12c787874e681d0c",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Frequência",
+        "topic": "casa/frequencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 60,
+        "y": 980,
+        "wires": [
+            [
+                "8a95501ce3c9d21a"
+            ]
+        ]
+    },
+    {
+        "id": "b3c0a9e95b472ba8",
+        "type": "inject",
+        "z": "c935ee3111fcba88",
+        "name": "Buscar Dados",
+        "props": [
+            {
+                "p": "payload",
+                "v": "",
+                "vt": "date"
+            }
         ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 330,
+        "y": 780,
+        "wires": [
+            [
+                "6c60a94fe7e6a713"
+            ]
+        ]
+    },
+    {
+        "id": "6c60a94fe7e6a713",
+        "type": "function",
+        "z": "c935ee3111fcba88",
+        "name": "Preparar Busca",
+        "func": "var newMsg = {};\nnewMsg.method = \"GET\";\nnewMsg.url = \"https://juxgwiqblikaxgyjeqiv.supabase.co/rest/v1/dht11_data?select=*&order=timestamp.desc&limit=10\";\nnewMsg.headers = {};\nnewMsg.headers[\"apikey\"] = \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGd3aXFibGlrYXhneWplcWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDQ5NDQsImV4cCI6MjA3NjE4MDk0NH0.Nw9SVhqHNwSLjNeVlC3hNZj2uULR2oq88esrGXvMQec\";\nnewMsg.headers[\"Authorization\"] = \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1eGd3aXFibGlrYXhneWplcWl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MDQ5NDQsImV4cCI6MjA3NjE4MDk0NH0.Nw9SVhqHNwSLjNeVlC3hNZj2uULR2oq88esrGXvMQec\";\n\nreturn [newMsg];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 820,
+        "wires": [
+            [
+                "7117ce222b493ca5"
+            ]
+        ]
+    },
+    {
+        "id": "7117ce222b493ca5",
+        "type": "http request",
+        "z": "c935ee3111fcba88",
+        "name": "Buscar do Supabase",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 720,
+        "y": 820,
+        "wires": [
+            [
+                "c78a7817bcf6174f",
+                "b29ad889be0e4b1d"
+            ]
+        ]
+    },
+    {
+        "id": "c78a7817bcf6174f",
+        "type": "debug",
+        "z": "c935ee3111fcba88",
+        "name": "Dados Buscados",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 970,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "b29ad889be0e4b1d",
+        "type": "function",
+        "z": "c935ee3111fcba88",
+        "name": "Processar para Tabela",
+        "func": "// Processar dados para a UI Template\nif (msg.payload && Array.isArray(msg.payload)) {\n    // Formatar dados para a tabela\n    var tableData = msg.payload.map(row => ({\n        id: row.id,\n        temperatura: row.temperatura,\n        humidade: row.humidade,\n        timestamp: row.timestamp ? new Date(row.timestamp).toLocaleString('pt-BR') : '-'\n    }));\n    \n    msg.payload = tableData;\n    return [msg];\n} else {\n    node.warn(\"Nenhum dado retornado ou erro na query\");\n    // Retornar array vazio para a tabela\n    msg.payload = [];\n    return [msg];\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 780,
+        "wires": [
+            [
+                "82b28ce965711eeb"
+            ]
+        ]
+    },
+    {
+        "id": "82b28ce965711eeb",
+        "type": "ui_template",
+        "z": "c935ee3111fcba88",
+        "group": "group-dashboard",
+        "name": "📊 Tabela DHT11",
+        "order": 5,
+        "width": 12,
+        "height": 8,
+        "format": "<div style='padding: 15px; font-family: Arial, sans-serif;'>\n  <h3 style='color: #2c3e50; margin-bottom: 15px;'>🌡️ Dados DHT11 - Supabase</h3>\n  \n  <div style='margin-bottom: 15px; display: flex; gap: 10px; align-items: center;'>\n    <button onclick=\"sendUpdate()\" style=\"padding: 8px 15px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;\">\n      🔄 Atualizar\n    </button>\n    <span style=\"font-size: 12px; color: #7f8c8d;\">\n      Última atualização: <span id=\"update-time-dht11\">-</span>\n    </span>\n  </div>\n  \n  <div style='overflow-x: auto;'>\n    <table style='width: 100%; border-collapse: collapse; border: 1px solid #ddd; font-size: 12px;'>\n      <thead>\n        <tr style='background-color: #34495e; color: white;'>\n          <th style='padding: 10px; border: 1px solid #ddd; text-align: left;'>ID</th>\n          <th style='padding: 10px; border: 1px solid #ddd; text-align: center;'>🌡️ Temperatura</th>\n          <th style='padding: 10px; border: 1px solid #ddd; text-align: center;'>💧 Humidade</th>\n          <th style='padding: 10px; border: 1px solid #ddd; text-align: center;'>⏰ Data/Hora</th>\n        </tr>\n      </thead>\n      <tbody id=\"tabela-corpo-dht11\">\n        <tr>\n          <td colspan=\"4\" style=\"padding: 20px; text-align: center; color: #7f8c8d;\">\n            📋 Clique em 'Atualizar' para carregar dados\n          </td>\n        </tr>\n      </tbody>\n    </table>\n  </div>\n  \n  <div style='margin-top: 10px; font-size: 11px; color: #95a5a6; text-align: center;'>\n    Total de registros: <span id=\"total-registros-dht11\">0</span>\n  </div>\n</div>\n\n<script>\n  // Função para enviar comando de atualização\n  function sendUpdate() {\n    node.send({payload: 'update'});\n    document.getElementById('update-time-dht11').textContent = 'Atualizando...';\n  }\n  \n  // Função para atualizar a tabela\n  function atualizarTabelaDHT11(dados) {\n    var tbody = document.getElementById('tabela-corpo-dht11');\n    var totalSpan = document.getElementById('total-registros-dht11');\n    \n    if (!dados || dados.length === 0) {\n      tbody.innerHTML = '<tr><td colspan=\"4\" style=\"padding: 20px; text-align: center; color: #7f8c8d;\">📋 Nenhum dado encontrado</td></tr>';\n      totalSpan.textContent = '0';\n      return;\n    }\n    \n    var html = '';\n    dados.forEach(function(item, index) {\n      var bgColor = index % 2 === 0 ? '#f8f9fa' : 'white';\n      \n      // Cores baseadas nos valores\n      var corTemp = item.temperatura > 30 ? '#e74c3c' : (item.temperatura < 15 ? '#3498db' : '#27ae60');\n      var corHum = item.humidade > 80 ? '#e74c3c' : (item.humidade < 30 ? '#f39c12' : '#27ae60');\n      \n      html += '<tr style=\"background-color: ' + bgColor + ';\">';\n      html += '<td style=\"padding: 8px; border: 1px solid #ddd; font-size: 11px;\">' + (item.id || '-') + '</td>';\n      html += '<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: ' + corTemp + ';\">' + (item.temperatura ? item.temperatura.toFixed(1) + '°C' : '-') + '</td>';\n      html += '<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: ' + corHum + ';\">' + (item.humidade ? item.humidade.toFixed(1) + '%' : '-') + '</td>';\n      html += '<td style=\"padding: 8px; border: 1px solid #ddd; text-align: center; font-size: 11px;\">' + (item.timestamp || '-') + '</td>';\n      html += '</tr>';\n    });\n    \n    tbody.innerHTML = html;\n    totalSpan.textContent = dados.length;\n    document.getElementById('update-time-dht11').textContent = new Date().toLocaleString('pt-BR');\n  }\n  \n  // Observar mudanças nos dados\n  this.scope.$watch('msg', function(newMsg) {\n    if (newMsg && newMsg.payload) {\n      atualizarTabelaDHT11(newMsg.payload);\n    }\n  });\n  \n  // Atualizar inicialmente se já houver dados\n  if (this.scope.msg && this.scope.msg.payload) {\n    atualizarTabelaDHT11(this.scope.msg.payload);\n  }\n  \n  // Atualizar timestamp inicial\n  document.getElementById('update-time-dht11').textContent = 'Nunca';\n</script>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
         "className": "",
-        "x": 610,
-        "y": 120,
+        "x": 770,
+        "y": 780,
+        "wires": [
+            [
+                "b3c0a9e95b472ba8"
+            ]
+        ]
+    },
+    {
+        "id": "a19e03fa9ef59d28",
+        "type": "inject",
+        "z": "c935ee3111fcba88",
+        "name": "🔄 Auto-Atualizar",
+        "props": [
+            {
+                "p": "payload",
+                "v": "",
+                "vt": "date"
+            }
+        ],
+        "repeat": "30",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 5,
+        "x": 330,
+        "y": 840,
+        "wires": [
+            [
+                "6c60a94fe7e6a713"
+            ]
+        ]
+    },
+    {
+        "id": "12fb284014a7d020",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Potência Activa",
+        "topic": "casa/potencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 1180,
+        "wires": [
+            [
+                "86ae4487fa6f227f"
+            ]
+        ]
+    },
+    {
+        "id": "86ae4487fa6f227f",
+        "type": "function",
+        "z": "c935ee3111fcba88",
+        "name": "Verificar com Anti-Spam",
+        "func": "// Contexto para controlar último estado\nvar lastPowerState = context.get('lastPowerState') || 'low'; // 'low' ou 'high'\nvar power = parseFloat(msg.payload);\n\n// Validação: Verificar se payload é um número válido\nif (isNaN(power)) {\n    node.error('Payload inválido: ' + msg.payload + '. Deve ser um número (ex.: 10.5).');\n    return null; // Não processa\n}\n\nif (power >= 10.0) {\n    // Só envia alerta se a potência ACABOU de subir para alta\n    if (lastPowerState === 'low') {\n        // Criar mensagem de alerta\n        msg.topic = \"Alerta de Alta Potência\";\n        msg.payload = `⚠️ ALERTA DE ALTA POTÊNCIA ⚠️\\n\\n` +\n                      `Potência atual: ${power.toFixed(2)} W\\n` +\n                      `Limite: 10 W\\n` +\n                      `Horário: ${new Date().toLocaleString('pt-BR')}\\n\\n` +\n                      `Verifique os equipamentos conectados.`;\n        \n        msg.sendEmail = true;\n        context.set('lastPowerState', 'high'); // Atualiza estado para alto\n        \n        node.warn(`🔔 Alerta enviado: Potência subiu para ${power.toFixed(2)} W`);\n    } else {\n        msg.sendEmail = false;\n        node.log(`📊 Potência ainda alta: ${power.toFixed(2)} W. Nenhum alerta.`);\n    }\n} else {\n    // Potência baixa - reseta o estado para permitir novo alerta no futuro\n    if (lastPowerState === 'high') {\n        node.log(`📉 Potência voltou ao normal: ${power.toFixed(2)} W. Estado resetado.`);\n    }\n    context.set('lastPowerState', 'low'); // Atualiza estado para baixo\n    msg.sendEmail = false;\n    node.log(`✅ Potência normal: ${power.toFixed(2)} W`);\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 1180,
+        "wires": [
+            [
+                "ebd781e43d95dd0e"
+            ]
+        ]
+    },
+    {
+        "id": "ebd781e43d95dd0e",
+        "type": "switch",
+        "z": "c935ee3111fcba88",
+        "name": "Filtrar Email",
+        "property": "sendEmail",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 550,
+        "y": 1180,
+        "wires": [
+            [
+                "5a25c018c461c229"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "5a25c018c461c229",
+        "type": "e-mail",
+        "z": "c935ee3111fcba88",
+        "server": "smtp.gmail.com",
+        "port": "587",
+        "authtype": "BASIC",
+        "saslformat": false,
+        "token": "oauth2Response.access_token",
+        "secure": false,
+        "tls": false,
+        "name": "jjuni9404@gmail.com",
+        "dname": "Alerta Potência Anti-Spam",
+        "x": 790,
+        "y": 1180,
         "wires": []
     },
     {
@@ -1050,10 +1363,15 @@
         "className": ""
     },
     {
-        "id": "2a8159e9c173d43d",
-        "type": "sqlitedb",
-        "db": "./dados_sensor.db",
-        "mode": "RWC"
+        "id": "c62327b96e8da467",
+        "type": "ui_group",
+        "name": "Monitor Energia",
+        "tab": "d8fef3a0d83053ee",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
     },
     {
         "id": "group-dashboard",
@@ -1067,17 +1385,6 @@
         "className": ""
     },
     {
-        "id": "c62327b96e8da467",
-        "type": "ui_group",
-        "name": "Monitor Energia",
-        "tab": "d8fef3a0d83053ee",
-        "order": 3,
-        "disp": true,
-        "width": 6,
-        "collapse": false,
-        "className": ""
-    },
-    {
         "id": "d8fef3a0d83053ee",
         "type": "ui_tab",
         "name": "DHT11",
@@ -1086,12 +1393,12 @@
         "hidden": false
     },
     {
-        "id": "66d4a002aa31d3a7",
+        "id": "f0b7e8af875bb348",
         "type": "global-config",
         "env": [],
         "modules": {
             "node-red-dashboard": "3.6.6",
-            "node-red-node-sqlite": "1.1.1"
+            "node-red-node-email": "3.1.0"
         }
     }
 ]
