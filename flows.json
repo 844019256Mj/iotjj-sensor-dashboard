@@ -324,7 +324,7 @@
         "font": "",
         "fontSize": "",
         "color": "#000000",
-        "x": 930,
+        "x": 910,
         "y": 200,
         "wires": []
     },
@@ -383,402 +383,6 @@
         "className": "",
         "x": 610,
         "y": 120,
-        "wires": []
-    },
-    {
-        "id": "7e875dac882dd734",
-        "type": "mqtt in",
-        "z": "c935ee3111fcba88",
-        "name": "Tensão",
-        "topic": "casa/voltagem",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 50,
-        "y": 220,
-        "wires": [
-            [
-                "5c90151eb6b5f8c6",
-                "906d6e6cd945c35c"
-            ]
-        ]
-    },
-    {
-        "id": "094e5426dd5a9615",
-        "type": "mqtt in",
-        "z": "c935ee3111fcba88",
-        "name": "Corrente",
-        "topic": "casa/corrente",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 60,
-        "y": 280,
-        "wires": [
-            [
-                "33eb1163f513a6d8",
-                "d5433943a128f3a8"
-            ]
-        ]
-    },
-    {
-        "id": "125786c993ef127c",
-        "type": "mqtt in",
-        "z": "c935ee3111fcba88",
-        "name": "Potência Activa",
-        "topic": "casa/potencia",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 80,
-        "y": 340,
-        "wires": [
-            [
-                "9719fa563ac0a84c",
-                "62a166eaa0429455"
-            ]
-        ]
-    },
-    {
-        "id": "0726f113c033bf97",
-        "type": "mqtt in",
-        "z": "c935ee3111fcba88",
-        "name": "Energia Consumida",
-        "topic": "casa/energia",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 90,
-        "y": 400,
-        "wires": [
-            [
-                "4034757e3cc55333",
-                "0d1e64db504d3713"
-            ]
-        ]
-    },
-    {
-        "id": "f8559e93bae2222a",
-        "type": "mqtt in",
-        "z": "c935ee3111fcba88",
-        "name": "Factor de Potência",
-        "topic": "casa/fator_potencia",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 90,
-        "y": 460,
-        "wires": [
-            [
-                "b29d10dffa6818dd",
-                "89d80d6319b940e6"
-            ]
-        ]
-    },
-    {
-        "id": "769a5e209e3d6514",
-        "type": "mqtt in",
-        "z": "c935ee3111fcba88",
-        "name": "Frequência",
-        "topic": "casa/frequencia",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "a7603f8e8449f783",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 60,
-        "y": 520,
-        "wires": [
-            [
-                "d82400e0e1b40399",
-                "9c250cde1cfb703d"
-            ]
-        ]
-    },
-    {
-        "id": "5c90151eb6b5f8c6",
-        "type": "ui_gauge",
-        "z": "c935ee3111fcba88",
-        "name": "Corrente",
-        "group": "c62327b96e8da467",
-        "order": 3,
-        "width": "3",
-        "height": "2",
-        "gtype": "gage",
-        "title": "Tensao",
-        "label": "V",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "270",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 340,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "33eb1163f513a6d8",
-        "type": "ui_gauge",
-        "z": "c935ee3111fcba88",
-        "name": "Corrente",
-        "group": "c62327b96e8da467",
-        "order": 1,
-        "width": "3",
-        "height": "2",
-        "gtype": "gage",
-        "title": "Corrente",
-        "label": "A",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "1",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 340,
-        "y": 280,
-        "wires": []
-    },
-    {
-        "id": "9719fa563ac0a84c",
-        "type": "ui_gauge",
-        "z": "c935ee3111fcba88",
-        "name": "Potencia Activa",
-        "group": "c62327b96e8da467",
-        "order": 2,
-        "width": "3",
-        "height": "2",
-        "gtype": "gage",
-        "title": "Potencia Activa",
-        "label": "W",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "100",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 360,
-        "y": 340,
-        "wires": []
-    },
-    {
-        "id": "4034757e3cc55333",
-        "type": "ui_gauge",
-        "z": "c935ee3111fcba88",
-        "name": "",
-        "group": "c62327b96e8da467",
-        "order": 4,
-        "width": "3",
-        "height": "2",
-        "gtype": "gage",
-        "title": "Energia",
-        "label": "J",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "0.1",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 340,
-        "y": 400,
-        "wires": []
-    },
-    {
-        "id": "b29d10dffa6818dd",
-        "type": "ui_gauge",
-        "z": "c935ee3111fcba88",
-        "name": "Factor de Potencia",
-        "group": "c62327b96e8da467",
-        "order": 5,
-        "width": "3",
-        "height": "2",
-        "gtype": "gage",
-        "title": "Factor de Potencia",
-        "label": "",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "1",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 370,
-        "y": 460,
-        "wires": []
-    },
-    {
-        "id": "d82400e0e1b40399",
-        "type": "ui_gauge",
-        "z": "c935ee3111fcba88",
-        "name": "Frequencia",
-        "group": "c62327b96e8da467",
-        "order": 6,
-        "width": "3",
-        "height": "2",
-        "gtype": "gage",
-        "title": "Frequencia",
-        "label": "Hz",
-        "format": "{{value}}",
-        "min": 0,
-        "max": "70",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 350,
-        "y": 520,
-        "wires": []
-    },
-    {
-        "id": "906d6e6cd945c35c",
-        "type": "debug",
-        "z": "c935ee3111fcba88",
-        "name": "debug 3",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 535,
-        "y": 217,
-        "wires": []
-    },
-    {
-        "id": "d5433943a128f3a8",
-        "type": "debug",
-        "z": "c935ee3111fcba88",
-        "name": "debug 4",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 535,
-        "y": 277,
-        "wires": []
-    },
-    {
-        "id": "62a166eaa0429455",
-        "type": "debug",
-        "z": "c935ee3111fcba88",
-        "name": "debug 5",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 555,
-        "y": 337,
-        "wires": []
-    },
-    {
-        "id": "0d1e64db504d3713",
-        "type": "debug",
-        "z": "c935ee3111fcba88",
-        "name": "debug 7",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 555,
-        "y": 397,
-        "wires": []
-    },
-    {
-        "id": "89d80d6319b940e6",
-        "type": "debug",
-        "z": "c935ee3111fcba88",
-        "name": "debug 8",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 575,
-        "y": 457,
-        "wires": []
-    },
-    {
-        "id": "9c250cde1cfb703d",
-        "type": "debug",
-        "z": "c935ee3111fcba88",
-        "name": "debug 9",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 555,
-        "y": 517,
         "wires": []
     },
     {
@@ -921,7 +525,7 @@
         "senderr": false,
         "headers": [],
         "x": 520,
-        "y": 700,
+        "y": 680,
         "wires": [
             [
                 "738e7c94719fb113"
@@ -1237,8 +841,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 140,
-        "y": 1180,
+        "x": 80,
+        "y": 1140,
         "wires": [
             [
                 "86ae4487fa6f227f"
@@ -1258,7 +862,7 @@
         "finalize": "",
         "libs": [],
         "x": 350,
-        "y": 1180,
+        "y": 1140,
         "wires": [
             [
                 "ebd781e43d95dd0e"
@@ -1284,7 +888,7 @@
         "repair": false,
         "outputs": 2,
         "x": 550,
-        "y": 1180,
+        "y": 1140,
         "wires": [
             [
                 "5a25c018c461c229"
@@ -1306,7 +910,610 @@
         "name": "jjuni9404@gmail.com",
         "dname": "Alerta Potência Anti-Spam",
         "x": 790,
-        "y": 1180,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "19b11667098bc102",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Tensão da Rede",
+        "topic": "casa/voltagem",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 900,
+        "y": 400,
+        "wires": [
+            [
+                "da77c6c05f2ddf00"
+            ]
+        ]
+    },
+    {
+        "id": "555c1b8e14396a90",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Corrente",
+        "topic": "casa/corrente",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 880,
+        "y": 440,
+        "wires": [
+            [
+                "2bf4546674943830"
+            ]
+        ]
+    },
+    {
+        "id": "c300784cc78acc3c",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Potência Activa",
+        "topic": "casa/potencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 900,
+        "y": 500,
+        "wires": [
+            [
+                "4f6992e3b9874043"
+            ]
+        ]
+    },
+    {
+        "id": "d829621af0b9f93e",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Energia Consumida",
+        "topic": "casa/energia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 910,
+        "y": 560,
+        "wires": [
+            [
+                "412a205958bd4038"
+            ]
+        ]
+    },
+    {
+        "id": "01eaf12bca537eae",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Factor de Potência",
+        "topic": "casa/fator_potencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 910,
+        "y": 620,
+        "wires": [
+            [
+                "c1bb772d33afea25"
+            ]
+        ]
+    },
+    {
+        "id": "624283b70f8993f8",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Frequência",
+        "topic": "casa/frequencia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 880,
+        "y": 680,
+        "wires": [
+            [
+                "9a7c1279d1091969"
+            ]
+        ]
+    },
+    {
+        "id": "da77c6c05f2ddf00",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Tensão da Rede",
+        "group": "c62327b96e8da467",
+        "order": 7,
+        "width": "2",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Tensão",
+        "label": "V",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "270",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "200",
+        "seg2": "240",
+        "diff": false,
+        "className": "",
+        "x": 1140,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "2bf4546674943830",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Corrente",
+        "group": "c62327b96e8da467",
+        "order": 8,
+        "width": "2",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Corrente",
+        "label": "A",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "0.3",
+        "seg2": "0.7",
+        "diff": false,
+        "className": "",
+        "x": 1160,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "4f6992e3b9874043",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Potência Activa",
+        "group": "c62327b96e8da467",
+        "order": 9,
+        "width": "2",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Potência Ativa",
+        "label": "W",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "30",
+        "seg2": "70",
+        "diff": false,
+        "className": "",
+        "x": 1120,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "412a205958bd4038",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Energia Consumida",
+        "group": "c62327b96e8da467",
+        "order": 10,
+        "width": "2",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Energia",
+        "label": "kWh",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "0.1",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "0.03",
+        "seg2": "0.07",
+        "diff": false,
+        "className": "",
+        "x": 1120,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "c1bb772d33afea25",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Factor de Potência",
+        "group": "c62327b96e8da467",
+        "order": 11,
+        "width": "2",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Fator de Potência",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1",
+        "colors": [
+            "#ca3838",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "0.7",
+        "seg2": "0.9",
+        "diff": false,
+        "className": "",
+        "x": 1120,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "9a7c1279d1091969",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Frequência",
+        "group": "c62327b96e8da467",
+        "order": 12,
+        "width": "2",
+        "height": "2",
+        "gtype": "gage",
+        "title": "Frequência",
+        "label": "Hz",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "70",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "55",
+        "seg2": "65",
+        "diff": false,
+        "className": "",
+        "x": 1120,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "220134763baf27c9",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Tensão da Bateria",
+        "topic": "casa/bateria/tensao",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 810,
+        "y": 240,
+        "wires": [
+            [
+                "b73f3eaf82cbaca4",
+                "7f1e7a75b9f53748"
+            ]
+        ]
+    },
+    {
+        "id": "90bed86d478278b4",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Percentual da Bateria",
+        "topic": "casa/bateria/percentual",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 820,
+        "y": 280,
+        "wires": [
+            [
+                "61907ee3c01addfe",
+                "bc0ed5ece8f6ad72"
+            ]
+        ]
+    },
+    {
+        "id": "b73f3eaf82cbaca4",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Tensão da Bateria",
+        "group": "1177d0ae8856802a",
+        "order": 1,
+        "width": "3",
+        "height": "3",
+        "gtype": "gage",
+        "title": "Tensão da Bateria",
+        "label": "volts",
+        "format": "{{value}} V",
+        "min": 9,
+        "max": 13,
+        "colors": [
+            "#ca3838",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "11",
+        "seg2": "12",
+        "diff": false,
+        "className": "",
+        "x": 1140,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "61907ee3c01addfe",
+        "type": "ui_gauge",
+        "z": "c935ee3111fcba88",
+        "name": "Percentual da Bateria",
+        "group": "1177d0ae8856802a",
+        "order": 2,
+        "width": "3",
+        "height": "3",
+        "gtype": "gage",
+        "title": "Nível da Bateria",
+        "label": "percentual",
+        "format": "{{value}}%",
+        "min": 0,
+        "max": 100,
+        "colors": [
+            "#ca3838",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "30",
+        "seg2": "70",
+        "diff": false,
+        "className": "",
+        "x": 1140,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "7f1e7a75b9f53748",
+        "type": "ui_text",
+        "z": "c935ee3111fcba88",
+        "group": "1177d0ae8856802a",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Tensão",
+        "format": "{{msg.payload}} V",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1330,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "bc0ed5ece8f6ad72",
+        "type": "ui_text",
+        "z": "c935ee3111fcba88",
+        "group": "1177d0ae8856802a",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Percentual",
+        "format": "{{msg.payload}}%",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1330,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "e652ba1fc145fbd3",
+        "type": "ui_text",
+        "z": "c935ee3111fcba88",
+        "group": "1177d0ae8856802a",
+        "order": 5,
+        "width": "6",
+        "height": 0,
+        "name": "Estado dos Relés",
+        "label": "Estado dos Relés",
+        "format": "<div style='padding: 10px; background-color: #f5f5f5; border-radius: 5px;'>  <div style='display: flex; justify-content: space-around;'>    <div style='text-align: center; padding: 10px;'>      <div style='font-size: 14px; color: #666;'>Relé 1</div>      <div style='font-size: 24px; font-weight: bold; color: {{msg.payload.rele1 === \"LIGADO\" ? \"green\" : \"red\"}};'>{{msg.payload.rele1}}</div>    </div>    <div style='text-align: center; padding: 10px;'>      <div style='font-size: 14px; color: #666;'>Relé 2</div>      <div style='font-size: 24px; font-weight: bold; color: {{msg.payload.rele2 === \"LIGADO\" ? \"green\" : \"red\"}};'>{{msg.payload.rele2}}</div>    </div>  </div>  <div style='margin-top: 5px; font-size: 12px; color: #999; text-align: center;'>Atualizado: {{msg.payload.timestamp}}</div></div>",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1330,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "fc3a576f5841ad8f",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Status Relé 1",
+        "topic": "casa/rele1/status",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 900,
+        "y": 320,
+        "wires": [
+            [
+                "4b54c662df544b75"
+            ]
+        ]
+    },
+    {
+        "id": "f3e1136df00ce343",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Status Relé 2",
+        "topic": "casa/rele2/status",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 900,
+        "y": 360,
+        "wires": [
+            [
+                "4b54c662df544b75"
+            ]
+        ]
+    },
+    {
+        "id": "4b54c662df544b75",
+        "type": "function",
+        "z": "c935ee3111fcba88",
+        "name": "Combinar Estados",
+        "func": "// Contexto para armazenar estados\nvar rele1 = context.get('rele1') || \"DESLIGADO\";\nvar rele2 = context.get('rele2') || \"DESLIGADO\";\n\n// Atualizar estado baseado no tópico\nif (msg.topic === \"casa/rele1/status\") {\n    rele1 = msg.payload;\n    context.set('rele1', rele1);\n}\nif (msg.topic === \"casa/rele2/status\") {\n    rele2 = msg.payload;\n    context.set('rele2', rele2);\n}\n\n// Criar mensagem combinada\nvar newMsg = {\n    payload: {\n        rele1: rele1,\n        rele2: rele2,\n        timestamp: new Date().toLocaleTimeString('pt-PT')\n    }\n};\n\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 340,
+        "wires": [
+            [
+                "e652ba1fc145fbd3"
+            ]
+        ]
+    },
+    {
+        "id": "68152176f36bec08",
+        "type": "mqtt in",
+        "z": "c935ee3111fcba88",
+        "name": "Percentual da Bateria",
+        "topic": "casa/bateria/percentual",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "a7603f8e8449f783",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 100,
+        "y": 1080,
+        "wires": [
+            [
+                "45edbf6d370f0add"
+            ]
+        ]
+    },
+    {
+        "id": "45edbf6d370f0add",
+        "type": "function",
+        "z": "c935ee3111fcba88",
+        "name": "Verificar Bateria Baixa",
+        "func": "// Contexto para controlar último estado da bateria\nvar lastBatteryState = context.get('lastBatteryState') || 'normal'; // 'normal' ou 'low'\nvar batteryPercent = parseFloat(msg.payload);\n\n// Validação: Verificar se payload é um número válido\nif (isNaN(batteryPercent)) {\n    node.error('Payload de bateria inválido: ' + msg.payload + '. Deve ser um número (ex.: 45).');\n    return null;\n}\n\nif (batteryPercent <= 30.0) {\n    // Só envia alerta se a bateria ACABOU de atingir nível baixo\n    if (lastBatteryState === 'normal') {\n        // Criar mensagem de alerta\n        msg.topic = \"Alerta de Bateria Baixa\";\n        msg.payload = `🔋 ALERTA DE BATERIA BAIXA 🔋\\n\\n` +\n                      `Nível atual: ${batteryPercent.toFixed(1)}%\\n` +\n                      `Limite: 30%\\n` +\n                      `Horário: ${new Date().toLocaleString('pt-BR')}\\n\\n` +\n                      `Conecte à fonte de energia para recarregar.`;\n        \n        msg.sendEmailBattery = true;\n        context.set('lastBatteryState', 'low'); // Atualiza estado para baixo\n        \n        node.warn(`🔋 Alerta de bateria enviado: ${batteryPercent.toFixed(1)}%`);\n    } else {\n        msg.sendEmailBattery = false;\n        node.log(`🔋 Bateria ainda baixa: ${batteryPercent.toFixed(1)}%. Nenhum alerta.`);\n    }\n} else {\n    // Bateria normal - reseta o estado para permitir novo alerta no futuro\n    if (lastBatteryState === 'low') {\n        node.log(`🔌 Bateria recuperou: ${batteryPercent.toFixed(1)}%. Estado resetado.`);\n    }\n    context.set('lastBatteryState', 'normal'); // Atualiza estado para normal\n    msg.sendEmailBattery = false;\n    node.log(`✅ Bateria normal: ${batteryPercent.toFixed(1)}%`);\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 1080,
+        "wires": [
+            [
+                "b221da5b308f8e9a"
+            ]
+        ]
+    },
+    {
+        "id": "b221da5b308f8e9a",
+        "type": "switch",
+        "z": "c935ee3111fcba88",
+        "name": "Filtrar Email Bateria",
+        "property": "sendEmailBattery",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 510,
+        "y": 1080,
+        "wires": [
+            [
+                "9664c2216adb96a7"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "9664c2216adb96a7",
+        "type": "e-mail",
+        "z": "c935ee3111fcba88",
+        "server": "smtp.gmail.com",
+        "port": "587",
+        "authtype": "BASIC",
+        "saslformat": false,
+        "token": "oauth2Response.access_token",
+        "secure": false,
+        "tls": false,
+        "name": "jjuni9404@gmail.com",
+        "dname": "Alerta Bateria Baixa",
+        "x": 750,
+        "y": 1080,
         "wires": []
     },
     {
@@ -1363,6 +1570,17 @@
         "className": ""
     },
     {
+        "id": "group-dashboard",
+        "type": "ui_group",
+        "name": "Monitor Solar",
+        "tab": "d8fef3a0d83053ee",
+        "order": 1,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
         "id": "c62327b96e8da467",
         "type": "ui_group",
         "name": "Monitor Energia",
@@ -1374,9 +1592,9 @@
         "className": ""
     },
     {
-        "id": "group-dashboard",
+        "id": "1177d0ae8856802a",
         "type": "ui_group",
-        "name": "Monitor Solar",
+        "name": "Monitor Bateria e Reles",
         "tab": "d8fef3a0d83053ee",
         "order": 1,
         "disp": true,
@@ -1393,7 +1611,7 @@
         "hidden": false
     },
     {
-        "id": "f0b7e8af875bb348",
+        "id": "e5abc9f6391bc9f1",
         "type": "global-config",
         "env": [],
         "modules": {
